@@ -1,11 +1,17 @@
 <div class="row">
     <div class="col-md-6 mb-3">
         <label class="form-label">SKU</label>
-        <input type="text" name="sku" class="form-control" value="{{ old('sku', $sparepart->sku ?? '') }}" required>
+        <input type="text" name="sku" class="form-control @error('sku') is-invalid @enderror" value="{{ old('sku', $sparepart->sku ?? '') }}" required>
+        @error('sku')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-md-6 mb-3">
         <label class="form-label">Nama</label>
-        <input type="text" name="name" class="form-control" value="{{ old('name', $sparepart->name ?? '') }}" required>
+        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $sparepart->name ?? '') }}" required>
+        @error('name')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-md-6 mb-3">
         <label class="form-label">Kategori</label>
@@ -22,11 +28,17 @@
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Harga Beli</label>
-        <input type="number" step="0.01" name="price_buy" class="form-control" value="{{ old('price_buy', $sparepart->price_buy ?? 0) }}">
+        <input type="number" step="0.01" name="price_buy" class="form-control @error('price_buy') is-invalid @enderror" value="{{ old('price_buy', $sparepart->price_buy ?? 0) }}">
+        @error('price_buy')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Harga Jual</label>
-        <input type="number" step="0.01" name="price_sell" class="form-control" value="{{ old('price_sell', $sparepart->price_sell ?? 0) }}">
+        <input type="number" step="0.01" name="price_sell" class="form-control @error('price_sell') is-invalid @enderror" value="{{ old('price_sell', $sparepart->price_sell ?? 0) }}">
+        @error('price_sell')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Minimum Stok</label>

@@ -14,12 +14,29 @@ class SparepartController extends Controller
 {
     public function index()
     {
+        $filters = [
+            'search' => request('search'),
+            'category_id' => request('category_id'),
+        ];
+
         $spareparts = Sparepart::query()
             ->with('category')
+            ->when($filters['search'], function ($query, string $search) {
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('sku', 'like', '%' . $search . '%');
+                });
+            })
+            ->when($filters['category_id'], function ($query, string $categoryId) {
+                $query->where('category_id', $categoryId);
+            })
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('spareparts.index', compact('spareparts'));
+        $categories = Category::orderBy('name')->get();
+
+        return view('spareparts.index', compact('spareparts', 'categories', 'filters'));
     }
 
     public function create()
@@ -51,6 +68,12 @@ class SparepartController extends Controller
         $data['name'] = trim($data['name']);
         $data['unit'] = isset($data['unit']) ? trim($data['unit']) : null;
         $data['is_active'] = $request->boolean('is_active');
+
+        if (($data['price_sell'] ?? 0) < ($data['price_buy'] ?? 0)) {
+            return back()->withInput()->withErrors([
+                'price_sell' => 'Harga jual tidak boleh lebih kecil dari harga beli.',
+            ]);
+        }
 
         $sparepart = Sparepart::create($data);
 
@@ -104,6 +127,12 @@ class SparepartController extends Controller
         $data['name'] = trim($data['name']);
         $data['unit'] = isset($data['unit']) ? trim($data['unit']) : null;
         $data['is_active'] = $request->boolean('is_active');
+
+        if (($data['price_sell'] ?? 0) < ($data['price_buy'] ?? 0)) {
+            return back()->withInput()->withErrors([
+                'price_sell' => 'Harga jual tidak boleh lebih kecil dari harga beli.',
+            ]);
+        }
 
         $before = $sparepart->only([
             'sku',
