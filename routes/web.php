@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\SparepartController;
 use App\Http\Controllers\Web\StockAdjustmentController;
+use App\Http\Controllers\Web\StockLogController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -56,9 +57,10 @@ Route::middleware('auth')->group(function (): void {
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show')->whereNumber('sale');
     });
 
-    Route::middleware('permission:manage-stock')->group(function (): void {
+    Route::middleware(['permission:manage-stock', 'role:gudang'])->group(function (): void {
         Route::get('stock-adjustments/create', [StockAdjustmentController::class, 'create'])->name('stock-adjustments.create');
         Route::post('stock-adjustments', [StockAdjustmentController::class, 'store'])->name('stock-adjustments.store');
+        Route::get('stock-logs', [StockLogController::class, 'index'])->name('stock-logs.index');
     });
 
     Route::middleware('permission:manage-users')->group(function (): void {

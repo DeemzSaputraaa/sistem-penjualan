@@ -25,11 +25,20 @@ class StockAdjustmentController extends Controller
             'notes' => ['required', 'string', 'max:255'],
         ]);
 
+        $delta = (int) $data['qty'];
+        $absDelta = abs($delta);
+
+        if ($absDelta > 50 && ! $request->user()?->hasAnyRole(['super-admin', 'admin'])) {
+            return back()->withInput()->withErrors([
+                'qty' => 'Penyesuaian di atas 50 unit membutuhkan approval Admin/Super Admin.',
+            ]);
+        }
+
         $sparepart = Sparepart::findOrFail($data['sparepart_id']);
         try {
             $stockService->adjust(
                 $sparepart,
-                (int) $data['qty'],
+                $delta,
                 'adjust',
                 'adjustment',
                 null,

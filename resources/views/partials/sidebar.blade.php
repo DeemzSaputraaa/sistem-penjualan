@@ -74,12 +74,16 @@
         </div>
     @endif
 
-    @if ($user?->hasPermission('manage-stock'))
+    @if ($user?->hasPermission('manage-stock') && $user?->hasRole('gudang'))
         <div class="sidebar-section">
             <div class="sidebar-section-title">Stok</div>
             <a class="sidebar-link {{ request()->routeIs('stock-adjustments.*') ? 'is-active' : '' }}" href="{{ route('stock-adjustments.create') }}">
                 <span class="sidebar-icon">ST</span>
                 Penyesuaian Stok
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('stock-logs.*') ? 'is-active' : '' }}" href="{{ route('stock-logs.index') }}">
+                <span class="sidebar-icon">LG</span>
+                Histori Stok
             </a>
         </div>
     @endif

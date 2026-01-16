@@ -20,6 +20,13 @@ class StockAdjustmentController extends Controller
 
         $sparepart = Sparepart::findOrFail($data['sparepart_id']);
         $delta = (int) $data['qty'];
+        $absDelta = abs($delta);
+
+        if ($absDelta > 50 && ! $request->user()?->hasAnyRole(['super-admin', 'admin'])) {
+            return response()->json([
+                'message' => 'Penyesuaian di atas 50 unit membutuhkan approval Admin/Super Admin.',
+            ], 422);
+        }
 
         try {
             $stockService->adjust(
