@@ -69,8 +69,8 @@ class SaleService
                 );
             }
 
-            $paid = (float) ($payload['paid'] ?? 0);
-            $change = max(0, $paid - $total);
+                $paid = (float) ($payload['paid'] ?? 0);
+                $change = max(0, $paid - $total);
 
             $sale->update([
                 'total' => $total,

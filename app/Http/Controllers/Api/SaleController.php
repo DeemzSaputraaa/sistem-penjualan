@@ -20,6 +20,8 @@ class SaleController extends Controller
 
     public function store(Request $request, SaleService $saleService)
     {
+        $this->authorize('create', Sale::class);
+
         $data = $request->validate([
             'invoice_no' => ['required', 'string', 'max:50', 'unique:sales,invoice_no'],
             'customer_id' => ['nullable', 'exists:customers,id'],

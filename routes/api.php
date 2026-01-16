@@ -46,8 +46,11 @@ Route::prefix('v1')->name('api.')->group(function (): void {
 
         Route::middleware('permission:manage-sales')->group(function (): void {
             Route::get('sales', [SaleController::class, 'index']);
+            Route::get('sales/{sale}', [SaleController::class, 'show'])->whereNumber('sale');
+        });
+
+        Route::middleware(['permission:manage-sales', 'role:kasir'])->group(function (): void {
             Route::post('sales', [SaleController::class, 'store']);
-            Route::get('sales/{sale}', [SaleController::class, 'show']);
         });
 
         Route::middleware('permission:manage-stock')->group(function (): void {

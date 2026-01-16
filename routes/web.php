@@ -46,8 +46,14 @@ Route::middleware('auth')->group(function (): void {
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive');
     });
 
+    Route::middleware(['permission:manage-sales', 'role:kasir'])->group(function (): void {
+        Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create');
+        Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
+    });
+
     Route::middleware('permission:manage-sales')->group(function (): void {
-        Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
+        Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show')->whereNumber('sale');
     });
 
     Route::middleware('permission:manage-stock')->group(function (): void {

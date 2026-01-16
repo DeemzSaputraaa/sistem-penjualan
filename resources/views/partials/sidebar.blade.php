@@ -65,10 +65,12 @@
                 <span class="sidebar-icon">SL</span>
                 Data Penjualan
             </a>
-            <a class="sidebar-link {{ request()->routeIs('sales.create') ? 'is-active' : '' }}" href="{{ route('sales.create') }}">
-                <span class="sidebar-icon">TR</span>
-                Transaksi Penjualan
-            </a>
+            @if ($user?->hasRole('kasir'))
+                <a class="sidebar-link {{ request()->routeIs('sales.create') ? 'is-active' : '' }}" href="{{ route('sales.create') }}">
+                    <span class="sidebar-icon">TR</span>
+                    Transaksi Penjualan
+                </a>
+            @endif
         </div>
     @endif
 
