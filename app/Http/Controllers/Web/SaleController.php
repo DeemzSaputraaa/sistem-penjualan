@@ -9,6 +9,7 @@ use App\Models\Sparepart;
 use App\Services\SaleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class SaleController extends Controller
 {
@@ -45,7 +46,11 @@ class SaleController extends Controller
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $sale = $saleService->create($data, $request->user()->id);
+        try {
+            $sale = $saleService->create($data, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return back()->withInput()->withErrors(['items' => $exception->getMessage()]);
+        }
 
         return redirect()->route('sales.show', $sale)->with('status', 'Penjualan berhasil dibuat.');
     }

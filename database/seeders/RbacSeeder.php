@@ -27,7 +27,12 @@ class RbacSeeder extends Seeder
 
         $permissions = [
             'manage-master',
+            'manage-categories',
+            'manage-spareparts',
+            'manage-suppliers',
+            'manage-customers',
             'manage-sales',
+            'manage-pricing',
             'manage-purchases',
             'manage-stock',
             'view-reports',
@@ -40,7 +45,17 @@ class RbacSeeder extends Seeder
 
         $rolePermissions = [
             'super-admin' => $permissions,
-            'admin' => ['manage-master', 'manage-sales', 'manage-purchases', 'manage-stock'],
+            'admin' => [
+                'manage-master',
+                'manage-categories',
+                'manage-spareparts',
+                'manage-suppliers',
+                'manage-customers',
+                'manage-sales',
+                'manage-pricing',
+                'manage-purchases',
+                'manage-stock',
+            ],
             'kasir' => ['manage-sales'],
             'gudang' => ['manage-stock'],
             'purchasing' => ['manage-purchases'],

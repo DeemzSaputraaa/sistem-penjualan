@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Sparepart;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class SparepartController extends Controller
@@ -27,8 +29,12 @@ class SparepartController extends Controller
         return view('spareparts.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, AuditLogService $auditLog)
     {
+        if ($request->has('sku')) {
+            $request->merge(['sku' => Str::upper(trim($request->input('sku')))]);
+        }
+
         $data = $request->validate([
             'sku' => ['required', 'string', 'max:50', 'unique:spareparts,sku'],
             'name' => ['required', 'string', 'max:150'],
@@ -41,9 +47,30 @@ class SparepartController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $data['sku'] = Str::upper(trim($data['sku']));
+        $data['name'] = trim($data['name']);
+        $data['unit'] = isset($data['unit']) ? trim($data['unit']) : null;
         $data['is_active'] = $request->boolean('is_active');
 
-        Sparepart::create($data);
+        $sparepart = Sparepart::create($data);
+
+        $auditLog->log(
+            'sparepart.create',
+            $sparepart,
+            $request->user(),
+            $request,
+            null,
+            $sparepart->only([
+                'sku',
+                'name',
+                'category_id',
+                'unit',
+                'price_buy',
+                'price_sell',
+                'min_stock',
+                'is_active',
+            ])
+        );
 
         return redirect()->route('spareparts.index')->with('status', 'Sparepart berhasil ditambahkan.');
     }
@@ -55,8 +82,12 @@ class SparepartController extends Controller
         return view('spareparts.edit', compact('sparepart', 'categories'));
     }
 
-    public function update(Request $request, Sparepart $sparepart)
+    public function update(Request $request, Sparepart $sparepart, AuditLogService $auditLog)
     {
+        if ($request->has('sku')) {
+            $request->merge(['sku' => Str::upper(trim($request->input('sku')))]);
+        }
+
         $data = $request->validate([
             'sku' => ['required', 'string', 'max:50', Rule::unique('spareparts', 'sku')->ignore($sparepart->id)],
             'name' => ['required', 'string', 'max:150'],
@@ -69,16 +100,51 @@ class SparepartController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $data['sku'] = Str::upper(trim($data['sku']));
+        $data['name'] = trim($data['name']);
+        $data['unit'] = isset($data['unit']) ? trim($data['unit']) : null;
         $data['is_active'] = $request->boolean('is_active');
 
+        $before = $sparepart->only([
+            'sku',
+            'name',
+            'category_id',
+            'unit',
+            'price_buy',
+            'price_sell',
+            'min_stock',
+            'is_active',
+        ]);
+
         $sparepart->update($data);
+
+        $auditLog->log(
+            'sparepart.update',
+            $sparepart,
+            $request->user(),
+            $request,
+            $before,
+            $sparepart->only([
+                'sku',
+                'name',
+                'category_id',
+                'unit',
+                'price_buy',
+                'price_sell',
+                'min_stock',
+                'is_active',
+            ])
+        );
 
         return redirect()->route('spareparts.index')->with('status', 'Sparepart diperbarui.');
     }
 
-    public function destroy(Sparepart $sparepart)
+    public function destroy(Sparepart $sparepart, AuditLogService $auditLog, Request $request)
     {
+        $before = $sparepart->only(['sku', 'name', 'category_id', 'unit', 'price_buy', 'price_sell', 'min_stock', 'is_active']);
         $sparepart->delete();
+
+        $auditLog->log('sparepart.delete', $sparepart, $request->user(), $request, $before, null);
 
         return redirect()->route('spareparts.index')->with('status', 'Sparepart dihapus.');
     }

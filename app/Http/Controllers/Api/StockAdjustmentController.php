@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sparepart;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class StockAdjustmentController extends Controller
 {
@@ -14,22 +15,26 @@ class StockAdjustmentController extends Controller
         $data = $request->validate([
             'sparepart_id' => ['required', 'exists:spareparts,id'],
             'qty' => ['required', 'integer', 'not_in:0'],
-            'notes' => ['nullable', 'string'],
+            'notes' => ['required', 'string', 'max:255'],
         ]);
 
         $sparepart = Sparepart::findOrFail($data['sparepart_id']);
         $delta = (int) $data['qty'];
 
-        $stockService->adjust(
-            $sparepart,
-            $delta,
-            'adjust',
-            'adjustment',
-            null,
-            $request->user()?->id,
-            $data['notes'] ?? null,
-            null
-        );
+        try {
+            $stockService->adjust(
+                $sparepart,
+                $delta,
+                'adjust',
+                'adjustment',
+                null,
+                $request->user(),
+                $data['notes'] ?? null,
+                null
+            );
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json($sparepart->fresh(), 200);
     }

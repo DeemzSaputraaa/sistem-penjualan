@@ -5,18 +5,25 @@ namespace App\Services;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Sparepart;
+use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class PurchaseService
 {
-    public function __construct(private readonly StockService $stockService)
+    public function __construct(
+        private readonly StockService $stockService,
+        private readonly AuditLogService $auditLog
+    )
     {
     }
 
-    public function create(array $payload, ?int $userId = null): Purchase
+    public function create(array $payload, ?User $user = null): Purchase
     {
-        return DB::transaction(function () use ($payload, $userId): Purchase {
+        $userId = $user?->id;
+
+        return DB::transaction(function () use ($payload, $userId, $user): Purchase {
             $purchase = Purchase::create([
                 'purchase_no' => $payload['purchase_no'],
                 'supplier_id' => $payload['supplier_id'] ?? null,
@@ -52,7 +59,7 @@ class PurchaseService
                         'in',
                         'purchase',
                         $purchase->id,
-                        $userId,
+                        $user,
                         $payload['notes'] ?? null,
                         (string) $price
                     );
@@ -65,17 +72,30 @@ class PurchaseService
                 'received_at' => $status === 'received' ? now() : null,
             ]);
 
+            $this->auditLog->log(
+                'purchase.create',
+                $purchase,
+                $user,
+                null,
+                null,
+                [
+                    'status' => $status,
+                    'total' => $total,
+                    'items' => $payload['items'],
+                ]
+            );
+
             return $purchase->load('items.sparepart', 'supplier');
         });
     }
 
-    public function receive(Purchase $purchase, ?int $userId = null): Purchase
+    public function receive(Purchase $purchase, ?User $user = null): Purchase
     {
         if ($purchase->status === 'received') {
             throw new InvalidArgumentException('Purchase already received.');
         }
 
-        return DB::transaction(function () use ($purchase, $userId): Purchase {
+        return DB::transaction(function () use ($purchase, $user): Purchase {
             $purchase->load('items');
 
             foreach ($purchase->items as $item) {
@@ -87,7 +107,7 @@ class PurchaseService
                     'in',
                     'purchase',
                     $purchase->id,
-                    $userId,
+                    $user,
                     $purchase->notes,
                     (string) $item->price
                 );
@@ -99,6 +119,15 @@ class PurchaseService
                 'status' => 'received',
                 'received_at' => now(),
             ]);
+
+            $this->auditLog->log(
+                'purchase.receive',
+                $purchase,
+                $user,
+                null,
+                ['status' => 'draft'],
+                ['status' => 'received']
+            );
 
             return $purchase->load('items.sparepart', 'supplier', 'user');
         });

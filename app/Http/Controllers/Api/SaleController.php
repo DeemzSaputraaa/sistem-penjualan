@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sale;
 use App\Services\SaleService;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class SaleController extends Controller
 {
@@ -31,7 +32,11 @@ class SaleController extends Controller
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $sale = $saleService->create($data, $request->user()?->id);
+        try {
+            $sale = $saleService->create($data, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json($sale, 201);
     }

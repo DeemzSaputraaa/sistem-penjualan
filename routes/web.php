@@ -25,23 +25,32 @@ Route::middleware('auth')->group(function (): void {
         return request()->user()?->load('roles', 'permissions');
     });
 
-    Route::middleware('role:super-admin|admin')->group(function (): void {
+    Route::middleware('permission:manage-categories')->group(function (): void {
         Route::resource('categories', CategoryController::class)->except('show');
+    });
+
+    Route::middleware('permission:manage-spareparts')->group(function (): void {
         Route::resource('spareparts', SparepartController::class)->except('show');
+    });
+
+    Route::middleware('permission:manage-suppliers')->group(function (): void {
         Route::resource('suppliers', SupplierController::class)->except('show');
+    });
+
+    Route::middleware('permission:manage-customers')->group(function (): void {
         Route::resource('customers', CustomerController::class)->except('show');
     });
 
-    Route::middleware('role:super-admin|admin|purchasing')->group(function (): void {
+    Route::middleware('permission:manage-purchases')->group(function (): void {
         Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive');
     });
 
-    Route::middleware('role:super-admin|admin|kasir')->group(function (): void {
+    Route::middleware('permission:manage-sales')->group(function (): void {
         Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
     });
 
-    Route::middleware('role:super-admin|admin|gudang')->group(function (): void {
+    Route::middleware('permission:manage-stock')->group(function (): void {
         Route::get('stock-adjustments/create', [StockAdjustmentController::class, 'create'])->name('stock-adjustments.create');
         Route::post('stock-adjustments', [StockAdjustmentController::class, 'store'])->name('stock-adjustments.store');
     });
@@ -50,7 +59,7 @@ Route::middleware('auth')->group(function (): void {
         Route::resource('users', UserController::class)->except('show');
     });
 
-    Route::middleware('role:super-admin|owner')->group(function (): void {
+    Route::middleware('permission:view-reports')->group(function (): void {
         Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
         Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');

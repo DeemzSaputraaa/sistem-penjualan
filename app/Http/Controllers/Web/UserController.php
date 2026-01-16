@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -27,7 +28,7 @@ class UserController extends Controller
         return view('users.create', compact('roles', 'permissions'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, AuditLogService $auditLog)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
@@ -48,6 +49,20 @@ class UserController extends Controller
         $user->roles()->sync($data['role_ids'] ?? []);
         $user->permissions()->sync($data['permission_ids'] ?? []);
 
+        $auditLog->log(
+            'user.create',
+            $user,
+            $request->user(),
+            $request,
+            null,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $data['role_ids'] ?? [],
+                'permissions' => $data['permission_ids'] ?? [],
+            ]
+        );
+
         return redirect()->route('users.index')->with('status', 'User berhasil ditambahkan.');
     }
 
@@ -59,7 +74,7 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'roles', 'permissions'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user, AuditLogService $auditLog)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
@@ -85,18 +100,55 @@ class UserController extends Controller
             $update['password'] = Hash::make($data['password']);
         }
 
+        $before = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles()->pluck('id')->all(),
+            'permissions' => $user->permissions()->pluck('id')->all(),
+        ];
+
         $user->update($update);
         $user->roles()->sync($data['role_ids'] ?? []);
         $user->permissions()->sync($data['permission_ids'] ?? []);
 
+        $auditLog->log(
+            'user.update',
+            $user,
+            $request->user(),
+            $request,
+            $before,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $data['role_ids'] ?? [],
+                'permissions' => $data['permission_ids'] ?? [],
+            ]
+        );
+
         return redirect()->route('users.index')->with('status', 'User diperbarui.');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user, AuditLogService $auditLog, Request $request)
     {
+        $before = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles()->pluck('id')->all(),
+            'permissions' => $user->permissions()->pluck('id')->all(),
+        ];
+
         $user->roles()->detach();
         $user->permissions()->detach();
         $user->delete();
+
+        $auditLog->log(
+            'user.delete',
+            $user,
+            $request->user(),
+            $request,
+            $before,
+            null
+        );
 
         return redirect()->route('users.index')->with('status', 'User dihapus.');
     }

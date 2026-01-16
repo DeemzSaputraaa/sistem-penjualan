@@ -17,7 +17,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="@yield('body-class')">
+<body class="app-page @yield('body-class')">
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm @yield('navbar-class')">
             <div class="container-fluid">
@@ -68,9 +68,20 @@
                             @endif
                         @else
                             <li class="nav-item d-none d-md-flex gap-2 me-2 header-icons">
-                                <button class="btn btn-link text-decoration-none p-0" type="button" aria-label="Theme">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <button class="btn btn-link text-decoration-none p-0 theme-toggle" type="button" aria-label="Theme" data-theme-toggle>
+                                    <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                    </svg>
+                                    <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="4"></circle>
+                                        <path d="M12 2v2"></path>
+                                        <path d="M12 20v2"></path>
+                                        <path d="M4.93 4.93l1.41 1.41"></path>
+                                        <path d="M17.66 17.66l1.41 1.41"></path>
+                                        <path d="M2 12h2"></path>
+                                        <path d="M20 12h2"></path>
+                                        <path d="M6.34 17.66l-1.41 1.41"></path>
+                                        <path d="M19.07 4.93l-1.41 1.41"></path>
                                     </svg>
                                 </button>
                                 <button class="btn btn-link text-decoration-none p-0" type="button" aria-label="Notifications">

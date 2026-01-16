@@ -6,3 +6,328 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+body.app-page {
+    background: #f5f7fb;
+    color: #0f172a;
+}
+
+body.app-page main.py-4 {
+    padding-top: 1.5rem;
+}
+
+body.app-page .navbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+body.app-page aside {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+}
+
+body.app-page .container-fluid > .row {
+    gap: 0;
+}
+
+body.app-page .card {
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
+}
+
+body.app-page .card .card-body {
+    padding: 1.5rem;
+}
+
+body.app-page .table {
+    color: #0f172a;
+}
+
+body.app-page .table thead th {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    border-bottom-color: #e2e8f0;
+}
+
+body.app-page .table > :not(caption) > * > * {
+    border-color: #e2e8f0;
+}
+
+body.app-page .form-control,
+body.app-page .form-select {
+    border-radius: 14px;
+    border-color: #e2e8f0;
+    padding: 0.6rem 0.9rem;
+}
+
+body.app-page .form-control:focus,
+body.app-page .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+}
+
+body.app-page .btn {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+body.app-page h4 {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+body.app-page .pagination .page-link {
+    border-radius: 999px;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+body.app-page .pagination .page-item.active .page-link {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff;
+}
+
+.page-shell {
+    background: #f3f6fb;
+    border-radius: 24px;
+    padding: 2rem 2.25rem 2.5rem;
+    box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.6);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-size: clamp(1.4rem, 2vw, 2rem);
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.role-badge {
+    background: #e2e8f0;
+    color: #1e293b;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.3rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.role-badge + .role-badge {
+    margin-left: 0.35rem;
+}
+
+.sidebar-nav {
+    padding: 1.75rem 1.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 1.1rem;
+}
+
+.sidebar-brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 14px;
+    color: #475569;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: #1e293b;
+}
+
+.sidebar-link.is-active {
+    background: #6366f1;
+    color: #ffffff;
+    box-shadow: 0 12px 20px rgba(99, 102, 241, 0.35);
+}
+
+.sidebar-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: #e2e8f0;
+    display: grid;
+    place-items: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #334155;
+    flex-shrink: 0;
+}
+
+.sidebar-link.is-active .sidebar-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+body.theme-dark {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+body.theme-dark .navbar {
+    background: #0b1220 !important;
+    border-bottom: 1px solid #1e293b;
+}
+
+body.theme-dark .dropdown-menu {
+    background: #0b1220;
+    border-color: #1e293b;
+}
+
+body.theme-dark .dropdown-item {
+    color: #e2e8f0;
+}
+
+body.theme-dark .dropdown-item:hover {
+    background: #111827;
+    color: #f8fafc;
+}
+
+body.theme-dark aside,
+body.theme-dark .card,
+body.theme-dark .table,
+body.theme-dark .list-group,
+body.theme-dark .modal-content {
+    background: #111827 !important;
+    color: #e2e8f0;
+    border-color: #1e293b;
+}
+
+body.theme-dark .page-shell {
+    background: #0f172a;
+    box-shadow: inset 0 0 0 1px rgba(30, 41, 59, 0.8);
+}
+
+body.theme-dark .page-title {
+    color: #f8fafc;
+}
+
+body.theme-dark .page-subtitle {
+    color: #94a3b8;
+}
+
+body.theme-dark .role-badge {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.theme-dark .sidebar-brand {
+    color: #e2e8f0;
+}
+
+body.theme-dark .sidebar-section-title {
+    color: #64748b;
+}
+
+body.theme-dark .sidebar-link {
+    color: #cbd5f5;
+}
+
+body.theme-dark .sidebar-link:hover {
+    background: rgba(99, 102, 241, 0.2);
+    color: #f8fafc;
+}
+
+body.theme-dark .sidebar-icon {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.theme-dark .table {
+    color: #e2e8f0;
+}
+
+body.theme-dark .table > :not(caption) > * > * {
+    background: #111827;
+    color: inherit;
+    border-color: #1e293b;
+}
+
+body.theme-dark .form-control,
+body.theme-dark .form-select {
+    background: #0b1220;
+    color: #e2e8f0;
+    border-color: #1e293b;
+}
+
+body.theme-dark .form-control::placeholder {
+    color: #94a3b8;
+}
+
+body.theme-dark .btn.btn-light {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #e2e8f0;
+}
+
+.theme-toggle .theme-icon-sun {
+    display: none;
+}
+
+body.theme-dark .theme-toggle .theme-icon-moon {
+    display: none;
+}
+
+body.theme-dark .theme-toggle .theme-icon-sun {
+    display: inline;
+}

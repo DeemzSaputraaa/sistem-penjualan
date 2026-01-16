@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@php($canEditPrice = auth()->user()?->hasPermission('manage-pricing'))
 <div class="container-fluid">
     <h4 class="mb-3">Transaksi Penjualan</h4>
     <div class="card shadow-sm">
@@ -56,7 +57,7 @@
                                     <select name="items[0][sparepart_id]" class="form-select" required>
                                         <option value="">-</option>
                                         @foreach ($spareparts as $sparepart)
-                                            <option value="{{ $sparepart->id }}">{{ $sparepart->name }}</option>
+                                            <option value="{{ $sparepart->id }}" data-price="{{ $sparepart->price_sell }}">{{ $sparepart->name }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -64,7 +65,7 @@
                                     <input type="number" name="items[0][qty]" class="form-control" value="1" min="1" required>
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" name="items[0][price]" class="form-control" value="0" min="0" required>
+                                    <input type="number" step="0.01" name="items[0][price]" class="form-control" value="0" min="0" required @readonly(! $canEditPrice)>
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-outline-danger remove-item">Hapus</button>
@@ -86,7 +87,20 @@
 <script>
     const tableBody = document.querySelector('#items-table tbody');
     const addButton = document.getElementById('add-item');
+    const canEditPrice = {{ $canEditPrice ? 'true' : 'false' }};
     let rowIndex = 1;
+
+    const updatePriceFromSelection = (selectEl) => {
+        const row = selectEl.closest('tr');
+        const priceInput = row.querySelector('input[name*="[price]"]');
+        if (!priceInput) {
+            return;
+        }
+
+        const selected = selectEl.options[selectEl.selectedIndex];
+        const price = selected?.dataset?.price ?? '0';
+        priceInput.value = price;
+    };
 
     addButton.addEventListener('click', () => {
         const row = document.createElement('tr');
@@ -95,7 +109,7 @@
                 <select name="items[${rowIndex}][sparepart_id]" class="form-select" required>
                     <option value="">-</option>
                     @foreach ($spareparts as $sparepart)
-                        <option value="{{ $sparepart->id }}">{{ $sparepart->name }}</option>
+                        <option value="{{ $sparepart->id }}" data-price="{{ $sparepart->price_sell }}">{{ $sparepart->name }}</option>
                     @endforeach
                 </select>
             </td>
@@ -103,7 +117,7 @@
                 <input type="number" name="items[${rowIndex}][qty]" class="form-control" value="1" min="1" required>
             </td>
             <td>
-                <input type="number" step="0.01" name="items[${rowIndex}][price]" class="form-control" value="0" min="0" required>
+                <input type="number" step="0.01" name="items[${rowIndex}][price]" class="form-control" value="0" min="0" required ${canEditPrice ? '' : 'readonly'}>
             </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-outline-danger remove-item">Hapus</button>
@@ -119,6 +133,12 @@
             if (rows.length > 1) {
                 event.target.closest('tr').remove();
             }
+        }
+    });
+
+    tableBody.addEventListener('change', (event) => {
+        if (event.target.matches('select[name*="[sparepart_id]"]')) {
+            updatePriceFromSelection(event.target);
         }
     });
 </script>

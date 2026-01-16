@@ -78,4 +78,15 @@ class User extends Authenticatable
             ->whereHas('permissions', fn ($query) => $query->where('name', $name))
             ->exists();
     }
+
+    public function hasAnyPermission(array $names): bool
+    {
+        foreach ($names as $name) {
+            if ($this->hasPermission($name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

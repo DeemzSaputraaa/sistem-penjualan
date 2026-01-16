@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Purchase;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class PurchaseController extends Controller
 {
@@ -31,7 +32,11 @@ class PurchaseController extends Controller
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $purchase = $purchaseService->create($data, $request->user()?->id);
+        try {
+            $purchase = $purchaseService->create($data, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json($purchase, 201);
     }
@@ -43,7 +48,11 @@ class PurchaseController extends Controller
 
     public function receive(Purchase $purchase, PurchaseService $purchaseService, Request $request)
     {
-        $purchase = $purchaseService->receive($purchase, $request->user()?->id);
+        try {
+            $purchase = $purchaseService->receive($purchase, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
 
         return response()->json($purchase);
     }

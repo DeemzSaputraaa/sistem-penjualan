@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class PurchaseController extends Controller
 {
@@ -45,7 +46,11 @@ class PurchaseController extends Controller
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $purchase = $purchaseService->create($data, $request->user()->id);
+        try {
+            $purchase = $purchaseService->create($data, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return back()->withInput()->withErrors(['items' => $exception->getMessage()]);
+        }
 
         return redirect()->route('purchases.show', $purchase)->with('status', 'Pembelian berhasil dibuat.');
     }
@@ -59,7 +64,11 @@ class PurchaseController extends Controller
 
     public function receive(Purchase $purchase, PurchaseService $purchaseService, Request $request)
     {
-        $purchaseService->receive($purchase, $request->user()->id);
+        try {
+            $purchaseService->receive($purchase, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['status' => $exception->getMessage()]);
+        }
 
         return redirect()->route('purchases.show', $purchase)->with('status', 'Pembelian diterima dan stok bertambah.');
     }

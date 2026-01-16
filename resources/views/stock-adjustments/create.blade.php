@@ -24,7 +24,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Catatan</label>
-                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                    <textarea name="notes" class="form-control" rows="2" required></textarea>
                 </div>
                 <button class="btn btn-primary" type="submit">Simpan</button>
             </form>
