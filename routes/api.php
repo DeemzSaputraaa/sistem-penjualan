@@ -37,11 +37,15 @@ Route::prefix('v1')->name('api.')->group(function (): void {
             Route::apiResource('customers', CustomerController::class);
         });
 
+        Route::middleware(['permission:manage-purchases', 'role:purchasing|super-admin'])->group(function (): void {
+            Route::post('purchases', [PurchaseController::class, 'store']);
+            Route::post('purchases/{purchase}/order', [PurchaseController::class, 'order']);
+            Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive']);
+        });
+
         Route::middleware('permission:manage-purchases')->group(function (): void {
             Route::get('purchases', [PurchaseController::class, 'index']);
-            Route::post('purchases', [PurchaseController::class, 'store']);
-            Route::get('purchases/{purchase}', [PurchaseController::class, 'show']);
-            Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive']);
+            Route::get('purchases/{purchase}', [PurchaseController::class, 'show'])->whereNumber('purchase');
         });
 
         Route::middleware('permission:manage-sales')->group(function (): void {

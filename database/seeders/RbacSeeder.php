@@ -58,7 +58,7 @@ class RbacSeeder extends Seeder
             ],
             'kasir' => ['manage-sales'],
             'gudang' => ['manage-stock'],
-            'purchasing' => ['manage-purchases'],
+            'purchasing' => ['manage-purchases', 'manage-suppliers'],
             'owner' => ['view-reports'],
         ];
 

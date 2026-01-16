@@ -16,6 +16,7 @@ class Purchase extends Model
         'total',
         'notes',
         'purchased_at',
+        'received_at',
     ];
 
     protected $casts = [

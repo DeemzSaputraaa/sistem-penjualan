@@ -11,6 +11,7 @@ class PurchaseItem extends Model
         'purchase_id',
         'sparepart_id',
         'qty',
+        'received_qty',
         'price',
         'subtotal',
     ];

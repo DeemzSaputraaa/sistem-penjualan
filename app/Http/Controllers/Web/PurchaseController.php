@@ -25,6 +25,8 @@ class PurchaseController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Purchase::class);
+
         $suppliers = Supplier::orderBy('name')->get();
         $spareparts = Sparepart::orderBy('name')->get();
         $purchaseNo = 'PO-' . now()->format('Ymd') . '-' . Str::upper(Str::random(4));
@@ -34,10 +36,12 @@ class PurchaseController extends Controller
 
     public function store(Request $request, PurchaseService $purchaseService)
     {
+        $this->authorize('create', Purchase::class);
+
         $data = $request->validate([
             'purchase_no' => ['required', 'string', 'max:50', 'unique:purchases,purchase_no'],
             'supplier_id' => ['nullable', 'exists:suppliers,id'],
-            'status' => ['required', 'string', 'in:received,draft'],
+            'status' => ['required', 'string', 'in:draft,ordered'],
             'notes' => ['nullable', 'string'],
             'purchased_at' => ['nullable', 'date'],
             'items' => ['required', 'array', 'min:1'],
@@ -62,14 +66,35 @@ class PurchaseController extends Controller
         return view('purchases.show', compact('purchase'));
     }
 
-    public function receive(Purchase $purchase, PurchaseService $purchaseService, Request $request)
+    public function order(Purchase $purchase, PurchaseService $purchaseService, Request $request)
     {
+        $this->authorize('order', $purchase);
+
         try {
-            $purchaseService->receive($purchase, $request->user());
+            $purchaseService->order($purchase, $request->user());
         } catch (InvalidArgumentException $exception) {
             return back()->withErrors(['status' => $exception->getMessage()]);
         }
 
-        return redirect()->route('purchases.show', $purchase)->with('status', 'Pembelian diterima dan stok bertambah.');
+        return redirect()->route('purchases.show', $purchase)->with('status', 'Pembelian dikonfirmasi sebagai Ordered.');
+    }
+
+    public function receive(Purchase $purchase, PurchaseService $purchaseService, Request $request)
+    {
+        $this->authorize('receive', $purchase);
+
+        $data = $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.id' => ['required', 'exists:purchase_items,id'],
+            'items.*.received_qty' => ['required', 'integer', 'min:0'],
+        ]);
+
+        try {
+            $purchaseService->receive($purchase, $data, $request->user());
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['status' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('purchases.show', $purchase)->with('status', 'Pembelian diproses.');
     }
 }

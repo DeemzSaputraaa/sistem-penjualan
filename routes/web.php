@@ -42,9 +42,16 @@ Route::middleware('auth')->group(function (): void {
         Route::resource('customers', CustomerController::class)->except('show');
     });
 
-    Route::middleware('permission:manage-purchases')->group(function (): void {
-        Route::resource('purchases', PurchaseController::class)->only(['index', 'create', 'store', 'show']);
+    Route::middleware(['permission:manage-purchases', 'role:purchasing|super-admin'])->group(function (): void {
+        Route::get('purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
+        Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+        Route::post('purchases/{purchase}/order', [PurchaseController::class, 'order'])->name('purchases.order');
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->name('purchases.receive');
+    });
+
+    Route::middleware('permission:manage-purchases')->group(function (): void {
+        Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+        Route::get('purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show')->whereNumber('purchase');
     });
 
     Route::middleware(['permission:manage-sales', 'role:kasir'])->group(function (): void {
