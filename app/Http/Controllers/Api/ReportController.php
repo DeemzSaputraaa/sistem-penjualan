@@ -18,13 +18,21 @@ class ReportController extends Controller
         $sales = Sale::query()
             ->when($range['from'], fn ($q) => $q->whereDate('sold_at', '>=', $range['from']))
             ->when($range['to'], fn ($q) => $q->whereDate('sold_at', '<=', $range['to']))
-            ->selectRaw('COUNT(*) as transactions, SUM(total) as total_sales')
+            ->selectRaw('COUNT(*) as transactions')
             ->first();
 
+        $totalSales = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($range['from'], fn ($q) => $q->whereDate('sales.sold_at', '>=', $range['from']))
+            ->when($range['to'], fn ($q) => $q->whereDate('sales.sold_at', '<=', $range['to']))
+            ->selectRaw('SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->value('total_sales');
+
         $perDay = Sale::query()
-            ->when($range['from'], fn ($q) => $q->whereDate('sold_at', '>=', $range['from']))
-            ->when($range['to'], fn ($q) => $q->whereDate('sold_at', '<=', $range['to']))
-            ->selectRaw('DATE(sold_at) as date, COUNT(*) as transactions, SUM(total) as total_sales')
+            ->join('sale_items', 'sale_items.sale_id', '=', 'sales.id')
+            ->when($range['from'], fn ($q) => $q->whereDate('sales.sold_at', '>=', $range['from']))
+            ->when($range['to'], fn ($q) => $q->whereDate('sales.sold_at', '<=', $range['to']))
+            ->selectRaw('DATE(sales.sold_at) as date, COUNT(DISTINCT sales.id) as transactions, SUM(sale_items.qty * sale_items.price) as total_sales')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -40,7 +48,7 @@ class ReportController extends Controller
             'range' => $range,
             'summary' => [
                 'transactions' => (int) ($sales->transactions ?? 0),
-                'total_sales' => (float) ($sales->total_sales ?? 0),
+                'total_sales' => (float) ($totalSales ?? 0),
                 'total_items' => (int) ($items ?? 0),
             ],
             'per_day' => $perDay,
@@ -83,10 +91,12 @@ class ReportController extends Controller
             ->selectRaw('SUM((sale_items.price - sale_items.cost) * sale_items.qty) as gross_profit')
             ->value('gross_profit');
 
-        $totalSales = Sale::query()
-            ->when($range['from'], fn ($q) => $q->whereDate('sold_at', '>=', $range['from']))
-            ->when($range['to'], fn ($q) => $q->whereDate('sold_at', '<=', $range['to']))
-            ->sum('total');
+        $totalSales = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($range['from'], fn ($q) => $q->whereDate('sales.sold_at', '>=', $range['from']))
+            ->when($range['to'], fn ($q) => $q->whereDate('sales.sold_at', '<=', $range['to']))
+            ->selectRaw('SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->value('total_sales');
 
         return response()->json([
             'range' => $range,

@@ -6,19 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Sparepart;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function sales(Request $request)
+    public function sales(Request $request, AuditLogService $auditLog)
     {
         [$from, $to] = $this->range($request);
 
         $sales = Sale::query()
             ->when($from, fn ($q) => $q->whereDate('sold_at', '>=', $from))
             ->when($to, fn ($q) => $q->whereDate('sold_at', '<=', $to))
-            ->selectRaw('COUNT(*) as transactions, SUM(total) as total_sales')
+            ->selectRaw('COUNT(*) as transactions')
             ->first();
+
+        $totalSales = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->value('total_sales');
 
         $items = SaleItem::query()
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
@@ -28,26 +36,32 @@ class ReportController extends Controller
             ->value('total_items');
 
         $perDay = Sale::query()
-            ->when($from, fn ($q) => $q->whereDate('sold_at', '>=', $from))
-            ->when($to, fn ($q) => $q->whereDate('sold_at', '<=', $to))
-            ->selectRaw('DATE(sold_at) as date, COUNT(*) as transactions, SUM(total) as total_sales')
+            ->join('sale_items', 'sale_items.sale_id', '=', 'sales.id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('DATE(sales.sold_at) as date, COUNT(DISTINCT sales.id) as transactions, SUM(sale_items.qty * sale_items.price) as total_sales')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+
+        $auditLog->log('report.sales.view', null, $request->user(), $request, null, [
+            'from' => $from,
+            'to' => $to,
+        ]);
 
         return view('reports.sales', [
             'from' => $from,
             'to' => $to,
             'summary' => [
                 'transactions' => (int) ($sales->transactions ?? 0),
-                'total_sales' => (float) ($sales->total_sales ?? 0),
+                'total_sales' => (float) ($totalSales ?? 0),
                 'total_items' => (int) ($items ?? 0),
             ],
             'perDay' => $perDay,
         ]);
     }
 
-    public function stock()
+    public function stock(Request $request, AuditLogService $auditLog)
     {
         $items = Sparepart::query()
             ->select('id', 'sku', 'name', 'stock', 'min_stock')
@@ -56,13 +70,15 @@ class ReportController extends Controller
 
         $lowStock = $items->filter(fn ($item) => $item->stock <= $item->min_stock)->count();
 
+        $auditLog->log('report.stock.view', null, $request->user(), $request, null, null);
+
         return view('reports.stock', [
             'items' => $items,
             'lowStock' => $lowStock,
         ]);
     }
 
-    public function profit(Request $request)
+    public function profit(Request $request, AuditLogService $auditLog)
     {
         [$from, $to] = $this->range($request);
 
@@ -73,10 +89,17 @@ class ReportController extends Controller
             ->selectRaw('SUM((sale_items.price - sale_items.cost) * sale_items.qty) as gross_profit')
             ->value('gross_profit');
 
-        $totalSales = Sale::query()
-            ->when($from, fn ($q) => $q->whereDate('sold_at', '>=', $from))
-            ->when($to, fn ($q) => $q->whereDate('sold_at', '<=', $to))
-            ->sum('total');
+        $totalSales = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->value('total_sales');
+
+        $auditLog->log('report.profit.view', null, $request->user(), $request, null, [
+            'from' => $from,
+            'to' => $to,
+        ]);
 
         return view('reports.profit', [
             'from' => $from,
