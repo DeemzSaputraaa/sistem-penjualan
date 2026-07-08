@@ -17,13 +17,13 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="app-page @yield('body-class')">
+<body class="app-page @auth has-sidebar @endauth @yield('body-class')">
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm @yield('navbar-class')">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm app-navbar @yield('navbar-class')">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
                     <span class="app-logo">SP</span>
-                    <span class="app-name">{{ config('app.name', 'Sistem Penjualan') }}</span>
+                    <span class="app-name">Sistem Penjualan</span>
                 </a>
                 <div class="navbar-quick d-none d-lg-flex">
                     <button class="btn btn-link text-decoration-none p-0" type="button" aria-label="Search">
@@ -122,15 +122,15 @@
             </div>
         </nav>
 
-        <main class="py-4 @yield('main-class')">
-            <div class="container-fluid">
-                <div class="row">
+        <main class="app-main-shell @yield('main-class')">
+            <div class="container-fluid app-main-container">
+                <div class="row app-layout-row">
                     @auth
-                        <aside class="col-12 col-lg-3 col-xl-2 bg-light border-end min-vh-100 py-4">
+                        <aside class="app-sidebar col-12 col-lg-3 col-xl-2 bg-light border-end min-vh-100">
                             @include('partials.sidebar')
                         </aside>
                     @endauth
-                    <section class="@auth col-12 col-lg-9 col-xl-10 @else col-12 @endauth py-4">
+                    <section class="app-content @auth col-12 col-lg-9 col-xl-10 @else col-12 @endauth">
                         @yield('content')
                     </section>
                 </div>

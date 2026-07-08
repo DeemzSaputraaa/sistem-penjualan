@@ -1,11 +1,6 @@
 @php($user = Auth::user())
 
 <div class="sidebar-nav">
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">SP</div>
-        <div class="sidebar-brand-text">Sistem Penjualan</div>
-    </div>
-
     <div class="sidebar-section">
         <div class="sidebar-section-title">Dashboards</div>
         <a class="sidebar-link {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">

@@ -12,13 +12,100 @@ body.app-page {
     color: #0f172a;
 }
 
-body.app-page main.py-4 {
-    padding-top: 1.5rem;
+body.app-page #app {
+    min-height: 100vh;
 }
 
 body.app-page .navbar {
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
+}
+
+body.app-page .app-navbar {
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.app-page .navbar-brand {
+    margin-right: 1.75rem;
+}
+
+.app-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.28);
+}
+
+.app-name {
+    font-weight: 700;
+    font-size: 1.95rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+}
+
+.navbar-quick {
+    gap: 1rem;
+    margin-left: 1.5rem;
+    color: #64748b;
+}
+
+.navbar-quick .btn,
+.header-icons .btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navbar-quick .btn:hover,
+.header-icons .btn:hover {
+    background: #eef2ff;
+    color: #334155;
+}
+
+.header-icons {
+    color: #64748b;
+}
+
+.avatar-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #1e293b;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+#navbarDropdown {
+    color: #475569;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#navbarDropdown:hover,
+#navbarDropdown:focus {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+#navbarDropdown::after {
+    margin-left: 0.65rem;
 }
 
 body.app-page aside {
@@ -28,6 +115,62 @@ body.app-page aside {
 
 body.app-page .container-fluid > .row {
     gap: 0;
+}
+
+body.app-page.has-sidebar #app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+body.app-page.has-sidebar {
+    overflow: hidden;
+}
+
+body.app-page.has-sidebar .app-navbar {
+    flex-shrink: 0;
+    z-index: 1040;
+}
+
+body.app-page.has-sidebar .app-main-shell {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+body.app-page.has-sidebar .app-main-container {
+    height: 100%;
+    padding: 0;
+}
+
+body.app-page.has-sidebar .app-layout-row {
+    height: 100%;
+    flex-wrap: nowrap;
+    margin: 0;
+}
+
+body.app-page.has-sidebar .app-sidebar,
+body.app-page.has-sidebar .app-content {
+    min-height: 0;
+    height: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.app-page.has-sidebar .app-sidebar {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+body.app-page.has-sidebar .app-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: 0 !important;
+    padding-bottom: 2rem;
 }
 
 body.app-page .card {
@@ -96,6 +239,7 @@ body.app-page .pagination .page-item.active .page-link {
     border-radius: 24px;
     padding: 2rem 2.25rem 2.5rem;
     box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.6);
+    margin-top: 0;
 }
 
 .page-header {
@@ -135,6 +279,36 @@ body.app-page .pagination .page-item.active .page-link {
 }
 
 @media (max-width: 767.98px) {
+    body.app-page .app-navbar {
+        padding: 0.75rem 1rem;
+    }
+
+    .app-logo {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+    }
+
+    .app-name {
+        font-size: 1.5rem;
+    }
+
+    body.app-page.has-sidebar,
+    body.app-page.has-sidebar #app {
+        overflow: visible;
+        height: auto;
+    }
+
+    body.app-page.has-sidebar .app-main-shell,
+    body.app-page.has-sidebar .app-main-container,
+    body.app-page.has-sidebar .app-layout-row,
+    body.app-page.has-sidebar .app-sidebar,
+    body.app-page.has-sidebar .app-content {
+        height: auto;
+        min-height: auto;
+        overflow: visible;
+    }
+
     .page-shell {
         padding: 1.5rem;
     }
@@ -155,7 +329,7 @@ body.app-page .pagination .page-item.active .page-link {
 }
 
 .sidebar-nav {
-    padding: 1.75rem 1.25rem 2rem;
+    padding: 0.75rem 1.25rem 2rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
