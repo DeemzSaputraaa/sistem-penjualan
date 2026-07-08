@@ -2,24 +2,33 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Laporan Penjualan</h4>
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Dari</label>
-                    <input type="date" name="from" class="form-control" value="{{ $from }}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Sampai</label>
-                    <input type="date" name="to" class="form-control" value="{{ $to }}">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary" type="submit">Filter</button>
-                </div>
-            </form>
+    <div class="page-shell">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Laporan Penjualan</div>
+                <p class="page-subtitle">Ringkasan transaksi dan omzet.</p>
+            </div>
+            <a class="btn btn-outline-secondary" href="{{ route('reports.sales.export', request()->query()) }}">Export CSV</a>
         </div>
-    </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Dari</label>
+                        <input type="date" name="from" class="form-control" value="{{ $from }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sampai</label>
+                        <input type="date" name="to" class="form-control" value="{{ $to }}">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+                        <button class="btn btn-primary" type="submit">Filter</button>
+                        <a class="btn btn-outline-secondary" href="{{ route('reports.sales') }}">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
 
     <div class="row g-3 mb-3">
         <div class="col-md-4">
@@ -48,30 +57,31 @@
         </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-striped mb-0">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Transaksi</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($perDay as $row)
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
                         <tr>
-                            <td>{{ $row->date }}</td>
-                            <td>{{ $row->transactions }}</td>
-                            <td>Rp {{ number_format($row->total_sales, 0, ',', '.') }}</td>
+                            <th>Tanggal</th>
+                            <th>Transaksi</th>
+                            <th>Total</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">Tidak ada data.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($perDay as $row)
+                            <tr>
+                                <td>{{ $row->date }}</td>
+                                <td>{{ $row->transactions }}</td>
+                                <td>Rp {{ number_format($row->total_sales, 0, ',', '.') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Tidak ada data.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

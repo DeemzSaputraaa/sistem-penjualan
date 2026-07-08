@@ -3,11 +3,19 @@
 @section('content')
 @php($canEditPrice = auth()->user()?->hasPermission('manage-pricing'))
 <div class="container-fluid">
-    <h4 class="mb-3">Transaksi Penjualan</h4>
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="POST" action="{{ route('sales.store') }}">
-                @csrf
+    <div class="page-shell">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Transaksi Penjualan</div>
+                <p class="page-subtitle">Input penjualan dengan cepat dan akurat.</p>
+            </div>
+            <a class="btn btn-outline-secondary" href="{{ route('sales.index') }}">Kembali</a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="{{ route('sales.store') }}">
+                    @csrf
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">No Invoice</label>
@@ -105,11 +113,12 @@
                     </table>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary" type="submit" id="submit-sale">Simpan</button>
-                    <a class="btn btn-outline-secondary" href="{{ route('sales.index') }}">Batal</a>
-                </div>
-            </form>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" type="submit" id="submit-sale">Simpan</button>
+                        <a class="btn btn-outline-secondary" href="{{ route('sales.index') }}">Batal</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

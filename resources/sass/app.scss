@@ -134,6 +134,26 @@ body.app-page .pagination .page-item.active .page-link {
     margin-left: 0.35rem;
 }
 
+@media (max-width: 767.98px) {
+    .page-shell {
+        padding: 1.5rem;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .table-responsive {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+}
+
 .sidebar-nav {
     padding: 1.75rem 1.25rem 2rem;
     display: flex;

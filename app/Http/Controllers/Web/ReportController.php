@@ -8,6 +8,7 @@ use App\Models\SaleItem;
 use App\Models\Sparepart;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -109,11 +110,115 @@ class ReportController extends Controller
         ]);
     }
 
+    public function exportSales(Request $request, AuditLogService $auditLog): StreamedResponse
+    {
+        [$from, $to] = $this->range($request);
+
+        $perDay = Sale::query()
+            ->join('sale_items', 'sale_items.sale_id', '=', 'sales.id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('DATE(sales.sold_at) as date, COUNT(DISTINCT sales.id) as transactions, SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $auditLog->log('report.sales.export', null, $request->user(), $request, null, [
+            'from' => $from,
+            'to' => $to,
+        ]);
+
+        $filename = 'sales-report-' . now()->format('YmdHis') . '.csv';
+
+        return $this->csvResponse($filename, function ($handle) use ($perDay) {
+            fputcsv($handle, ['Tanggal', 'Transaksi', 'Total Penjualan']);
+            foreach ($perDay as $row) {
+                fputcsv($handle, [
+                    $row->date,
+                    $row->transactions,
+                    number_format((float) $row->total_sales, 2, '.', ''),
+                ]);
+            }
+        });
+    }
+
+    public function exportStock(Request $request, AuditLogService $auditLog): StreamedResponse
+    {
+        $items = Sparepart::query()
+            ->select('sku', 'name', 'stock', 'min_stock')
+            ->orderBy('name')
+            ->get();
+
+        $auditLog->log('report.stock.export', null, $request->user(), $request, null, null);
+
+        $filename = 'stock-report-' . now()->format('YmdHis') . '.csv';
+
+        return $this->csvResponse($filename, function ($handle) use ($items) {
+            fputcsv($handle, ['SKU', 'Nama', 'Stok', 'Min Stok', 'Low Stock']);
+            foreach ($items as $item) {
+                fputcsv($handle, [
+                    $item->sku,
+                    $item->name,
+                    $item->stock,
+                    $item->min_stock,
+                    $item->stock <= $item->min_stock ? 'YES' : 'NO',
+                ]);
+            }
+        });
+    }
+
+    public function exportProfit(Request $request, AuditLogService $auditLog): StreamedResponse
+    {
+        [$from, $to] = $this->range($request);
+
+        $gross = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('SUM((sale_items.price - sale_items.cost) * sale_items.qty) as gross_profit')
+            ->value('gross_profit');
+
+        $totalSales = SaleItem::query()
+            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+            ->when($from, fn ($q) => $q->whereDate('sales.sold_at', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('sales.sold_at', '<=', $to))
+            ->selectRaw('SUM(sale_items.qty * sale_items.price) as total_sales')
+            ->value('total_sales');
+
+        $auditLog->log('report.profit.export', null, $request->user(), $request, null, [
+            'from' => $from,
+            'to' => $to,
+        ]);
+
+        $filename = 'profit-report-' . now()->format('YmdHis') . '.csv';
+
+        return $this->csvResponse($filename, function ($handle) use ($from, $to, $gross, $totalSales) {
+            fputcsv($handle, ['Range From', 'Range To', 'Total Sales', 'Gross Profit']);
+            fputcsv($handle, [
+                $from ?: '-',
+                $to ?: '-',
+                number_format((float) $totalSales, 2, '.', ''),
+                number_format((float) $gross, 2, '.', ''),
+            ]);
+        });
+    }
+
     private function range(Request $request): array
     {
         return [
             $request->query('from'),
             $request->query('to'),
         ];
+    }
+
+    private function csvResponse(string $filename, callable $writer): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($writer) {
+            $handle = fopen('php://output', 'w');
+            $writer($handle);
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }
